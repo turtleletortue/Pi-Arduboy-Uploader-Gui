@@ -1,11 +1,20 @@
 import os
 import tkinter
-from time import *
 continuevar = 1
 downloadup = 0
 downloaddat = 0
 readdirectory = 0
 screen = tkinter.Tk()
+screen.title("pi ard fla")
+screen.geometry("210x199")
+def quit():
+	screen.destroy()
+def reload():
+	screen.destroy()
+	os.system("python3 gui.py")
+def gameupdate():
+	os.system("rm -rf ArduboyCollection/")
+	reload()
 if os.path.isfile('./gindex.sh') == False:
 	os.system("curl -o gindex.sh https://raw.githubusercontent.com/turtleletortue/Pi-Arduboy-Uploader-Gui/master/gindex.sh")
 if os.path.isfile('./README.md') == False:
@@ -17,8 +26,13 @@ if os.path.isdir('./gindex') == False:
 if os.path.isfile('./games.txt') == True:
 	os.remove("games.txt")
 if os.path.isdir('./ArduboyCollection') == False:
+	downgaem = tkinter.Label(screen, text="Downloading Eried's Collection")
+	downgaem.pack()
+	screen.update()
 	os.system("git clone https://github.com/eried/ArduboyCollection.git")
 	downloaddat = 1
+	downgaem.destroy()
+	screen.update()
 if os.path.isfile('./games.txt') == False:
 	gaems = open("games.txt", "a")
 	if os.path.isfile("./gindex/action.txt") == True:
@@ -113,11 +127,31 @@ def upload(event):
 		fold = "Sports"
 	h = value[:-1]
 	h = h[5:]
-	comman = 'python3 uploader.py ' + '"ArduboyCollection/'+ fold + "/" + h + "/" + h + '.hex' + '"'
+	os.system('ls "ArduboyCollection/' + fold + '/' + h + '" >> gindex/gamdir.txt')
+	gamdir = open("gindex/gamdir.txt", "r")
+	for b in gamdir:
+		if '.hex' in b:
+			gamedir = '"ArduboyCollection/' + fold + '/' + h + '/' + b
+	comman = 'python3 uploader.py ' + gamedir[:-1] + '"'
 	print (comman)
-	screen.quit()
+	box.destroy()
 	continuevar = 0
+	startmsg = tkinter.Label(screen, text="Game is being flashed...\n(" + h + ")\n\n", fg="Green", bg="LightGreen")
+	startmsg.pack()
+	screen.update()
 	os.system(comman)
+	startmsg.destroy()
+	aftermsg = tkinter.Label(screen, text="Finished!")
+	aftermsg.pack()
+	rel = tkinter.Button(screen, text="Flash Another Game", command=reload)
+	fls = tkinter.Button(screen, text="Update Game List", command=gameupdate)
+	qui = tkinter.Button(screen, text="Exit", command = quit)
+
+
+	qui.pack()
+	rel.pack()
+	fls.pack()
+	screen.update()
 for i in gaems.readlines():
 	box.insert(fg, i)
 box.bind("<Double-Button-1>", upload)
